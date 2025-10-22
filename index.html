@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Expense Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <div class="login-header">
+                <h1 class="login-title">💰 Daily Expense Management</h1>
+                <p class="login-subtitle">Sign in to manage your personal expenses</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="login-tab-btn active" data-login-tab="signin">
+                    <span class="tab-icon">🔑</span>
+                    Sign In
+                </button>
+                <button class="login-tab-btn" data-login-tab="signup">
+                    <span class="tab-icon">📝</span>
+                    Sign Up
+                </button>
+            </div>
+
+            <!-- Sign In Form -->
+            <form class="login-form active" id="signInForm">
+                <div class="form-group">
+                    <label for="signinEmail">Email</label>
+                    <input type="email" id="signinEmail" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signinPassword">Password</label>
+                    <input type="password" id="signinPassword" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">
+                    <span class="btn-icon">🔑</span>
+                    Sign In
+                </button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form class="login-form" id="signUpForm">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" name="name" placeholder="Enter your full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" name="password" placeholder="Create a password" required minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupConfirmPassword">Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">
+                    <span class="btn-icon">📝</span>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p class="guest-login-text">Or continue as guest (data won't be saved)</p>
+                <button class="btn btn-secondary" id="guestLogin">
+                    <span class="btn-icon">👤</span>
+                    Continue as Guest
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header-title">💰 Daily Expense Management</h1>
+            <div class="header-actions">
+                <div class="user-info">
+                    <span class="user-name" id="userName">Guest User</span>
+                    <button class="btn btn-sm btn-secondary" id="logoutBtn">
+                        <span class="btn-icon">🚪</span>
+                        Logout
+                    </button>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="add-expense">
+                <span class="tab-icon">➕</span>
+                <span class="tab-text">Add Expense</span>
+            </button>
+            <button class="tab-btn" data-tab="view-expenses">
+                <span class="tab-icon">📋</span>
+                <span class="tab-text">View Expenses</span>
+            </button>
+            <button class="tab-btn" data-tab="analytics">
+                <span class="tab-icon">📊</span>
+                <span class="tab-text">Analytics</span>
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <span class="tab-icon">⚙️</span>
+                <span class="tab-text">Settings</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Add Expense Page -->
+            <div class="page active" id="add-expense-page">
+                <div class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">Add New Expense</h2>
+                        <p class="page-subtitle">Track your daily expenses easily</p>
+                    </div>
+                    
+                    <div class="form-container">
+                        <section class="card expense-form-section">
+                            <form class="expense-form" id="expenseForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expenseDate">Date</label>
+                                        <input type="date" id="expenseDate" name="date" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="expenseCategory">Category</label>
+                                        <select id="expenseCategory" name="category" required>
+                                            <option value="">Select Category</option>
+                                            <option value="food">🍽️ Food</option>
+                                            <option value="travel">✈️ Travel</option>
+                                            <option value="shopping">🛍️ Shopping</option>
+                                            <option value="bills">📄 Bills</option>
+                                            <option value="others">📦 Others</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="expenseTitle">Title/Description</label>
+                                    <input type="text" id="expenseTitle" name="title" placeholder="Enter expense description" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="expenseAmount">Amount</label>
+                                    <input type="number" id="expenseAmount" name="amount" placeholder="0.00" step="0.01" min="0" required>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary btn-large">
+                                    <span class="btn-icon">➕</span>
+                                    Add Expense
+                                </button>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Expenses Page -->
+            <div class="page" id="view-expenses-page">
+                <div class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">View Expenses</h2>
+                        <p class="page-subtitle">Manage and track all your expenses</p>
+                    </div>
+                    
+                    <!-- Search and Filter -->
+                    <section class="card filter-section">
+                        <div class="filter-controls">
+                            <div class="search-group">
+                                <input type="text" id="searchInput" placeholder="Search expenses..." class="search-input">
+                                <span class="search-icon">🔍</span>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <select id="categoryFilter" class="filter-select">
+                                    <option value="">All Categories</option>
+                                    <option value="food">🍽️ Food</option>
+                                    <option value="travel">✈️ Travel</option>
+                                    <option value="shopping">🛍️ Shopping</option>
+                                    <option value="bills">📄 Bills</option>
+                                    <option value="others">📦 Others</option>
+                                </select>
+                                
+                                <input type="date" id="dateFrom" class="filter-date" placeholder="From">
+                                <input type="date" id="dateTo" class="filter-date" placeholder="To">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Expenses List -->
+                    <section class="card expenses-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Expenses</h3>
+                            <div class="expense-count" id="expenseCount">0 expenses</div>
+                        </div>
+                        
+                        <div class="expenses-list" id="expensesList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page" id="analytics-page">
+                <div class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">Analytics</h2>
+                        <p class="page-subtitle">Insights into your spending patterns</p>
+                    </div>
+                    
+                    <!-- Expense Summary -->
+                    <section class="card summary-section">
+                        <h3 class="section-title">Expense Summary</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-label">Today</div>
+                                <div class="summary-value" id="todayTotal">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">This Week</div>
+                                <div class="summary-value" id="weekTotal">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">This Month</div>
+                                <div class="summary-value" id="monthTotal">$0.00</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Category Breakdown -->
+                    <section class="card category-section">
+                        <h3 class="section-title">Category Breakdown</h3>
+                        <div class="category-breakdown">
+                            <div class="category-list" id="categoryBreakdown">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Chart Section -->
+                    <section class="card chart-section">
+                        <h3 class="section-title">Expense Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page" id="settings-page">
+                <div class="page-content">
+                    <div class="page-header">
+                        <h2 class="page-title">Settings</h2>
+                        <p class="page-subtitle">Customize your experience</p>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <!-- Theme Settings -->
+                        <section class="card settings-section">
+                            <h3 class="section-title">Appearance</h3>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Theme</h4>
+                                    <p>Choose between light and dark mode</p>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="theme-toggle-large" id="themeToggleLarge">
+                                        <span class="theme-icon">🌙</span>
+                                        <span class="theme-text">Dark Mode</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Data Management -->
+                        <section class="card settings-section">
+                            <h3 class="section-title">Data Management</h3>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Export Data</h4>
+                                    <p>Download your expense data in various formats</p>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="export-buttons">
+                                        <button class="btn btn-secondary btn-sm" id="exportJSON">
+                                            <span class="btn-icon">📄</span>
+                                            JSON
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" id="exportPDF">
+                                            <span class="btn-icon">📋</span>
+                                            PDF Report
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" id="exportImage">
+                                            <span class="btn-icon">🖼️</span>
+                                            Image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Import Data</h4>
+                                    <p>Import expense data from JSON file</p>
+                                </div>
+                                <div class="setting-control">
+                                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                                    <button class="btn btn-secondary" id="importData">
+                                        <span class="btn-icon">📤</span>
+                                        Import
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Clear All Data</h4>
+                                    <p>Permanently delete all expense data</p>
+                                </div>
+                                <div class="setting-control">
+                                    <button class="btn btn-danger" id="clearData">
+                                        <span class="btn-icon">🗑️</span>
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- App Info -->
+                        <section class="card settings-section">
+                            <h3 class="section-title">About</h3>
+                            <div class="app-info">
+                                <div class="info-item">
+                                    <span class="info-label">Version:</span>
+                                    <span class="info-value">1.0.0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Total Expenses:</span>
+                                    <span class="info-value" id="totalExpensesCount">0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Total Amount:</span>
+                                    <span class="info-value" id="totalAmount">$0.00</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Expense</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <form class="edit-form" id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="editDate">Date</label>
+                    <input type="date" id="editDate" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTitle">Title/Description</label>
+                    <input type="text" id="editTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCategory">Category</label>
+                    <select id="editCategory" name="category" required>
+                        <option value="food">🍽️ Food</option>
+                        <option value="travel">✈️ Travel</option>
+                        <option value="shopping">🛍️ Shopping</option>
+                        <option value="bills">📄 Bills</option>
+                        <option value="others">📦 Others</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editAmount">Amount</label>
+                    <input type="number" id="editAmount" name="amount" step="0.01" min="0" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
